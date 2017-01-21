@@ -179,16 +179,17 @@ def daemonize(pid_file):
     # If we are in parent process - save child PID and return True
     # If we are in child process - proceed to next steps
     if pid > 0:
-        file = open(pid_file, 'w')
-        file.write(str(pid))
-        file.close()
+        with open(pid_file, 'w') as file:
+        	file.write(str(pid))
+        
+        print("ciao")
         return True
 
     # Change the file mode mask
     os.umask(0)
 
     # Create a new SID for the child process
-    os.setsid()
+    print(os.setsid())
 
     # Change the current working directory
     os.chdir('/')
@@ -265,9 +266,10 @@ def main():
 
     if LINUX and args.daemon_pid_file:
         # Exit if we are in parent process
-        if daemonize(args.daemon_pid_file):
-            sys.exit()
-        setup_logging(linux_daemon=True, verbose=args.verbose)
+         
+       if daemonize(args.daemon_pid_file):
+         	
+           setup_logging(linux_daemon=True, verbose=args.verbose)
     else:
         setup_logging(linux_daemon=False, verbose=args.verbose)
 

@@ -20,6 +20,7 @@ class Persistence:
                         self.authorized_chats.append(int(stripped_line))
                         i += 1
             logging.info('Loaded %d authorized chats' % i)
+	
 
     def check_chat_id(self, chat_id):
         return chat_id in self.authorized_chats
