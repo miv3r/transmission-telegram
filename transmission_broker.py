@@ -71,6 +71,23 @@ class TransmissionBroker:
              raise TransmissionError('Torrents %s not found' % missing_torrents)
 
          self.conn.stop_torrent(torrent_ids)
+    def start_torrent(self, chat_id, torrent_ids):
+         # Check is not embedded to transmissionrpc module, so we have to do it ourselves
+         missing_torrents = list()
+         torrents = self.conn.get_torrents()
+         for tid in torrent_ids:
+             id_found = False
+             for torrent in torrents:
+                 if tid == torrent.id:
+                     id_found = True
+                     break
+             if not id_found:
+                 missing_torrents.append(tid)
+
+         if len(missing_torrents) > 0:
+             raise TransmissionError('Torrents %s not found' % missing_torrents)
+
+         self.conn.start_torrent(torrent_ids)
 
     def check_chat_authorization(self, chat_id):
         if not self.persistence.check_chat_id(chat_id):

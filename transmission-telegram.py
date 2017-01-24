@@ -32,6 +32,7 @@ HELP_TEXT = 'Transmission Telegram bot version %s\n\n' \
             '/secret <SECRET> - authorize using secret\n' \
             '/list - retrieve list of current torrents and their statuses\n' \
             '/add <URI> - add torrent and start download\n' \
+            '/start <id> -  start download\n' \
             '/remove <TORRENT_ID> <TORRENT_ID> ... - remove torrents by IDs\n' \
             % VERSION
 
@@ -129,6 +130,29 @@ def stop_command(bot, update):
     except TransmissionError as e:
         transmission_error(bot, update, e)
 
+def start_command(bot, update):
+    if not check_connection(bot, update):
+        return
+
+    torrent_ids = list()
+    try:
+        for string_id in update.message.text.split(' ')[1:]:
+            torrent_ids.append(int(string_id))
+    except ValueError as e:
+        bot.sendMessage(chat_id=update.message.chat_id,
+                        text="Wrong torrent IDs: %s\nException:\n%s" % (update.message.text.split(' ', 1)[1], str(e)))
+        return
+
+    bot.sendMessage(chat_id=update.message.chat_id,
+                    text="stop torrents: %s ..." % torrent_ids)
+
+    try:
+        global_broker.start_torrent(update.message.chat_id, torrent_ids)
+
+        bot.sendMessage(chat_id=update.message.chat_id,
+                        text="Torrents successfully started")
+    except TransmissionError as e:
+        transmission_error(bot, update, e)
 
 def add_command(bot, update):
     if not check_connection(bot, update):
