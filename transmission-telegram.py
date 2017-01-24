@@ -28,6 +28,7 @@ VERSION = '2'
 HELP_TEXT = 'Transmission Telegram bot version %s\n\n' \
             'Usage:\n' \
             '/help - display this help\n' \
+            '/stop <TORRENT_ID> <TORRENT_ID>- stop torrent download\n' \
             '/secret <SECRET> - authorize using secret\n' \
             '/list - retrieve list of current torrents and their statuses\n' \
             '/add <URI> - add torrent and start download\n' \
@@ -101,6 +102,30 @@ def remove_command(bot, update):
 
         bot.sendMessage(chat_id=update.message.chat_id,
                         text="Torrents successfully removed")
+    except TransmissionError as e:
+        transmission_error(bot, update, e)
+
+def stop_command(bot, update):
+    if not check_connection(bot, update):
+        return
+
+    torrent_ids = list()
+    try:
+        for string_id in update.message.text.split(' ')[1:]:
+            torrent_ids.append(int(string_id))
+    except ValueError as e:
+        bot.sendMessage(chat_id=update.message.chat_id,
+                        text="Wrong torrent IDs: %s\nException:\n%s" % (update.message.text.split(' ', 1)[1], str(e)))
+        return
+
+    bot.sendMessage(chat_id=update.message.chat_id,
+                    text="stop torrents: %s ..." % torrent_ids)
+
+    try:
+        global_broker.stop_torrent(update.message.chat_id, torrent_ids)
+
+        bot.sendMessage(chat_id=update.message.chat_id,
+                        text="Torrents successfully stopped")
     except TransmissionError as e:
         transmission_error(bot, update, e)
 
@@ -181,7 +206,7 @@ def daemonize(pid_file):
     if pid > 0:
         with open(pid_file, 'w') as file:
         	file.write(str(pid))
-        
+
         print("ciao")
         return True
 
@@ -221,6 +246,10 @@ def run(args):
 
     add_handler = CommandHandler('add', add_command)
     dispatcher.add_handler(add_handler)
+
+    stop_handler = CommandHandler('stop', stop_command)
+    dispatcher.add_handler(stop_handler)
+
 
     remove_handler = CommandHandler('remove', remove_command)
     dispatcher.add_handler(remove_handler)
@@ -266,9 +295,9 @@ def main():
 
     if LINUX and args.daemon_pid_file:
         # Exit if we are in parent process
-         
+
        if daemonize(args.daemon_pid_file):
-         	
+
            setup_logging(linux_daemon=True, verbose=args.verbose)
     else:
         setup_logging(linux_daemon=False, verbose=args.verbose)
@@ -281,4 +310,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
