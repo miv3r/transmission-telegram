@@ -144,7 +144,7 @@ def start_command(bot, update):
         return
 
     bot.sendMessage(chat_id=update.message.chat_id,
-                    text="stop torrents: %s ..." % torrent_ids)
+                    text="start torrents: %s ..." % torrent_ids)
 
     try:
         global_broker.start_torrent(update.message.chat_id, torrent_ids)
@@ -281,7 +281,7 @@ def run(args):
     help_handler = CommandHandler('help', help_command)
     dispatcher.add_handler(help_handler)
 
-    start_handler = CommandHandler('start', help_command)
+    start_handler = CommandHandler('start', start_command)
     dispatcher.add_handler(start_handler)
 
     secret_handler = CommandHandler('secret', secret_command)
