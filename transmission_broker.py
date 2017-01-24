@@ -54,7 +54,7 @@ class TransmissionBroker:
         self.conn.remove_torrent(torrent_ids)
 
 
-     def stop_torrent(self, chat_id, torrent_ids):
+    def stop_torrent(self, chat_id, torrent_ids):
          # Check is not embedded to transmissionrpc module, so we have to do it ourselves
          missing_torrents = list()
          torrents = self.conn.get_torrents()
