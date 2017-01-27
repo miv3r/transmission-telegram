@@ -183,7 +183,7 @@ def list_command(bot, update):
     except TransmissionError as e:
         transmission_error(bot, update, e)
 
-def os_name(bot, update):
+def os_command(bot, update):
     if not check_connection(bot, update):
         return
 
@@ -293,8 +293,8 @@ def run(args):
     secret_handler = CommandHandler('secret', secret_command)
     dispatcher.add_handler(secret_handler)
     
-    os_handler = CommandHandler('uname', os_name)
-    dispatcher.add_handler(start_handler)
+    os_handler = CommandHandler('uname', os_command)
+    dispatcher.add_handler(os_handler)
 
     unknown_handler = MessageHandler([Filters.command], help_command)
     dispatcher.add_handler(unknown_handler)
